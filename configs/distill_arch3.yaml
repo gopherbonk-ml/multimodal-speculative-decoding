@@ -1,0 +1,35 @@
+# Architecture 3: ViT(Drafter) + Projector(Drafter) + LLM(Drafter)
+
+target_model: Qwen/Qwen2-VL-2B-Instruct
+arch: arch3
+
+arch_kwargs:
+  img_size: 224
+  patch_size: 14
+  vit_embed_dim: 384
+  vit_depth: 8
+  vit_num_heads: 6
+  pool_factor: 1
+  projector_dropout: 0.0
+  vit_dropout: 0.0
+
+data_config: configs/data_sources.jsonl
+max_seq_len: 2048
+
+training:
+  learning_rate: 1.0e-4    # lower LR: more params to train from scratch
+  weight_decay: 0.01
+  num_train_epochs: 5
+  warmup_ratio: 0.05
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 8
+  bf16: true
+  output_dir: checkpoints/arch3
+  save_steps: 500
+  eval_steps: 500
+  logging_steps: 10
+  temperature: 2.0
+  alpha: 0.9
+  loss_type: forward_kl
+  use_wandb: false

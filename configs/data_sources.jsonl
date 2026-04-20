@@ -1,0 +1,2 @@
+{"image_folder": "/data/images/coco", "jsonl_path": "/data/annotations/coco_train.jsonl", "weight": 1.0, "split": "train"}
+{"image_folder": "/data/images/coco", "jsonl_path": "/data/annotations/coco_eval.jsonl", "weight": 1.0, "split": "eval"}

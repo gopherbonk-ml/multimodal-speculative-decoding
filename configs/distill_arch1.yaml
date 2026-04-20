@@ -1,0 +1,31 @@
+# Architecture 1: ViT(Target) + Projector(Target) + Adapter(Drafter) + LLM(Drafter)
+
+target_model: Qwen/Qwen2-VL-2B-Instruct
+arch: arch1
+
+arch_kwargs:
+  adapter_dropout: 0.0
+
+data_config: configs/data_sources.jsonl
+max_seq_len: 2048
+
+training:
+  learning_rate: 2.0e-4
+  weight_decay: 0.01
+  num_train_epochs: 3
+  warmup_ratio: 0.03
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4
+  bf16: true
+  fp16: false
+  output_dir: checkpoints/arch1
+  save_steps: 500
+  eval_steps: 500
+  logging_steps: 10
+  temperature: 2.0
+  alpha: 0.9
+  loss_type: forward_kl
+  use_wandb: false
+  wandb_project: multimodal-speculative-decoding
+  dataloader_num_workers: 4
