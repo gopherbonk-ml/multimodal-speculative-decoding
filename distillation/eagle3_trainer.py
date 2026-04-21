@@ -17,9 +17,9 @@ from dataclasses import dataclass, field
 import torch
 from torch.cuda.amp import autocast
 
-from .trainer import DistillationTrainer, TrainingConfig
-from .eagle3_losses import Eagle3Loss
-from ..models.drafters.arch5_eagle3 import Arch5Eagle3Drafter
+from distillation.trainer import DistillationTrainer, TrainingConfig
+from distillation.eagle3_losses import Eagle3Loss
+from models.drafters.arch5_eagle3 import Arch5Eagle3Drafter
 
 logger = logging.getLogger(__name__)
 

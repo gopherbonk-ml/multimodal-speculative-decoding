@@ -33,13 +33,13 @@ from typing import Optional
 import torch
 import torch.nn.functional as F
 
-from .speculative_decoding import (
+from inference.speculative_decoding import (
     SpeculativeDecoder,
     SpeculativeDecodingConfig,
     DecodingStats,
 )
-from ..models.target import TargetModel
-from ..models.drafters.arch5_eagle3 import Arch5Eagle3Drafter
+from models.target import TargetModel
+from models.drafters.arch5_eagle3 import Arch5Eagle3Drafter
 
 
 class Eagle3SpeculativeDecoder(SpeculativeDecoder):

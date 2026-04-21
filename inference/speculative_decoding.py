@@ -25,8 +25,8 @@ from typing import Optional
 import torch
 import torch.nn.functional as F
 
-from ..models.target import TargetModel
-from ..models.base_drafter import BaseDrafter
+from models.target import TargetModel
+from models.base_drafter import BaseDrafter
 
 
 @dataclass

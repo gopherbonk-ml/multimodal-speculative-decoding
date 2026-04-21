@@ -26,9 +26,9 @@ from torch.utils.data import DataLoader, DistributedSampler
 from torch.cuda.amp import GradScaler, autocast
 from transformers import get_cosine_schedule_with_warmup
 
-from .losses import DistillationLoss
-from ..models.base_drafter import BaseDrafter
-from ..models.target import TargetModel
+from distillation.losses import DistillationLoss
+from models.base_drafter import BaseDrafter
+from models.target import TargetModel
 
 logger = logging.getLogger(__name__)
 

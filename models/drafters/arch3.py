@@ -15,10 +15,10 @@ import torch.nn as nn
 from transformers import Qwen2Config, Qwen2ForCausalLM
 from transformers.modeling_outputs import CausalLMOutputWithPast
 
-from ..base_drafter import BaseDrafter
-from ..components.small_vit import SmallViT
-from ..components.projector import MLPProjector
-from ..target import TargetModel
+from models.base_drafter import BaseDrafter
+from models.components.small_vit import SmallViT
+from models.components.projector import MLPProjector
+from models.target import TargetModel
 from .small_llm_config import get_small_qwen2_config
 
 

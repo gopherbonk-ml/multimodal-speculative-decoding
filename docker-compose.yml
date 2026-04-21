@@ -3,6 +3,7 @@ services:
     build: .
     image: multimodal-specdec:latest
     ipc: host          # обязательно для NCCL multi-GPU
+    network_mode: host
     ulimits:
       memlock: -1
       stack: 67108864
@@ -10,6 +11,11 @@ services:
       - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0,1,2}
       - NCCL_TIMEOUT=3600
       - TOKENIZERS_PARALLELISM=false
+      - HTTP_PROXY=${HTTP_PROXY:-}
+      - HTTPS_PROXY=${HTTPS_PROXY:-}
+      - http_proxy=${HTTP_PROXY:-}
+      - https_proxy=${HTTP_PROXY:-}
+      - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1}
     volumes:
       - ${DATA_DIR:-/data}:/data              # датасет на хосте → /data в контейнере
       - ${CKPT_DIR:-./checkpoints}:/workspace/checkpoints

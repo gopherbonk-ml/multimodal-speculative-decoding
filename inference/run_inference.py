@@ -21,9 +21,9 @@ import torch
 from PIL import Image
 from transformers import Qwen2VLProcessor
 
-from ..models import TargetModel, Arch1Drafter, Arch2Drafter, Arch3Drafter, Arch4Drafter, Arch5Eagle3Drafter
-from .speculative_decoding import SpeculativeDecoder, SpeculativeDecodingConfig
-from .eagle3_speculative_decoding import Eagle3SpeculativeDecoder
+from models import TargetModel, Arch1Drafter, Arch2Drafter, Arch3Drafter, Arch4Drafter, Arch5Eagle3Drafter
+from inference.speculative_decoding import SpeculativeDecoder, SpeculativeDecodingConfig
+from inference.eagle3_speculative_decoding import Eagle3SpeculativeDecoder
 
 ARCH_MAP = {
     "arch1": Arch1Drafter,

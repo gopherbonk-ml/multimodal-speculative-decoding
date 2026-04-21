@@ -18,7 +18,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .losses import DistillationLoss
+from distillation.losses import DistillationLoss
 
 
 class Eagle3Loss(nn.Module):
