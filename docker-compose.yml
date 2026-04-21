@@ -1,0 +1,29 @@
+services:
+  train:
+    build: .
+    image: multimodal-specdec:latest
+    ipc: host          # обязательно для NCCL multi-GPU
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    environment:
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0,1,2}
+      - NCCL_TIMEOUT=3600
+      - TOKENIZERS_PARALLELISM=false
+    volumes:
+      - ${DATA_DIR:-/data}:/data              # датасет на хосте → /data в контейнере
+      - ${CKPT_DIR:-./checkpoints}:/workspace/checkpoints
+      - hf_cache:/workspace/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: >
+      torchrun --nproc_per_node=${NUM_GPUS:-3}
+      train.py --config configs/distill_arch1.yaml
+
+volumes:
+  hf_cache:   # HuggingFace кэш переживает пересборку контейнера
