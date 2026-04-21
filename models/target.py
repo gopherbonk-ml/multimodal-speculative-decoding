@@ -33,19 +33,19 @@ class TargetModel(nn.Module):
     @property
     def visual(self):
         """Full Qwen2-VL visual encoder (ViT + merger/projector)."""
-        return self.model.visual
+        return self.model.model.visual
 
     @property
     def embed_tokens(self):
-        return self.model.model.embed_tokens
+        return self.model.model.language_model.embed_tokens
 
     @property
     def lm_hidden_size(self) -> int:
-        return self.model.config.hidden_size
+        return self.model.config.text_config.hidden_size
 
     @property
     def vocab_size(self) -> int:
-        return self.model.config.vocab_size
+        return self.model.config.text_config.vocab_size
 
     @property
     def image_token_id(self) -> int:
@@ -67,7 +67,7 @@ class TargetModel(nn.Module):
         Shape: (total_image_tokens, lm_hidden_size)
         These are already in the LLM's embedding space.
         """
-        return self.model.visual(pixel_values, grid_thw=image_grid_thw)
+        return self.model.model.visual(pixel_values, grid_thw=image_grid_thw)
 
     @torch.no_grad()
     def get_raw_vit_features(
@@ -81,7 +81,7 @@ class TargetModel(nn.Module):
         Used by Arch2 which shares the target ViT but uses its own projector.
         Shape: (total_patches, vit_hidden_size)
         """
-        vis = self.model.visual
+        vis = self.model.model.visual
         hidden = vis.patch_embed(pixel_values)
 
         rotary_pos_emb = vis.rot_pos_emb(image_grid_thw)
@@ -99,7 +99,7 @@ class TargetModel(nn.Module):
     @property
     def vit_hidden_size(self) -> int:
         """Output dimension of the raw ViT (before merger)."""
-        return self.model.visual.blocks[-1].norm2.normalized_shape[0]
+        return self.model.model.visual.blocks[-1].norm2.normalized_shape[0]
 
     # ------------------------------------------------------------------ #
     # Forward                                                             #

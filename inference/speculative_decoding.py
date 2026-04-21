@@ -29,6 +29,23 @@ from models.target import TargetModel
 from models.base_drafter import BaseDrafter
 
 
+def _drop_cache_entries(past_key_values, drop: int):
+    """Drop the last `drop` token positions from a KV cache (DynamicCache or tuple)."""
+    try:
+        from transformers.cache_utils import DynamicCache
+        if isinstance(past_key_values, DynamicCache):
+            legacy = past_key_values.to_legacy_cache()
+            trimmed = tuple(
+                (k[:, :, :-drop, :].contiguous(), v[:, :, :-drop, :].contiguous())
+                for k, v in legacy
+            )
+            return DynamicCache.from_legacy_cache(trimmed)
+    except ImportError:
+        pass
+    # Legacy tuple-of-tuples
+    return tuple((k[:, :, :-drop, :], v[:, :, :-drop, :]) for k, v in past_key_values)
+
+
 @dataclass
 class SpeculativeDecodingConfig:
     gamma: int = 5                     # number of draft tokens per step
@@ -354,17 +371,13 @@ class SpeculativeDecoder:
     def _trim_cache(self, past_key_values, keep: int, total_new: int):
         """
         Trim the last (total_new - keep) entries from each layer's KV cache.
-        Works with the standard list-of-tuples format from HuggingFace.
+        Handles both DynamicCache (transformers ≥4.36) and legacy tuple-of-tuples.
         """
         if keep == total_new:
             return past_key_values
 
-        # Number of positions to drop from the end
         drop = total_new - keep
-        trimmed = []
-        for k, v in past_key_values:
-            trimmed.append((k[:, :, :-drop, :], v[:, :, :-drop, :]))
-        return tuple(trimmed)
+        return _drop_cache_entries(past_key_values, drop)
 
     def _rollback_drafter_cache(self, drafter_past, n_tokens_to_keep_new: int):
         """
@@ -376,10 +389,7 @@ class SpeculativeDecoder:
         drop = self.cfg.gamma - (n_tokens_to_keep_new - 1)  # -1 because bonus is from target
         if drop <= 0:
             return drafter_past
-        trimmed = []
-        for k, v in drafter_past:
-            trimmed.append((k[:, :, :-drop, :], v[:, :, :-drop, :]))
-        return tuple(trimmed)
+        return _drop_cache_entries(drafter_past, drop)
 
     # ------------------------------------------------------------------ #
     # Sampling                                                            #
