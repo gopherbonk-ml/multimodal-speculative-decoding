@@ -121,17 +121,28 @@ class MultimodalDataset(Dataset):
         conversations: list[dict],
         has_image: bool,
     ) -> list[dict]:
-        """Convert conversations list to HF messages format."""
+        """
+        Convert conversations list to Qwen2-VL messages format.
+
+        apply_chat_template requires content to be a list of typed dicts
+        ({"type": "image"} / {"type": "text", "text": ...}) for multimodal
+        messages.  A plain string content will NOT trigger image-token insertion.
+        """
         messages = []
         for i, turn in enumerate(conversations):
             role = "user" if turn["from"] == "human" else "assistant"
-            value = turn["value"]
+            text = turn["value"]
 
-            # Prepend image token to the first human message
             if i == 0 and has_image and role == "user":
-                value = f"{self.image_token}\n{value}"
+                # Image must come BEFORE the text in the content list
+                content = [
+                    {"type": "image"},
+                    {"type": "text", "text": text},
+                ]
+            else:
+                content = [{"type": "text", "text": text}]
 
-            messages.append({"role": role, "content": value})
+            messages.append({"role": role, "content": content})
         return messages
 
     def _build_labels(

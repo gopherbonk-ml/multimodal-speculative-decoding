@@ -44,17 +44,13 @@ class DataCollator:
         batch["attention_mask"] = (batch["input_ids"] != self.pad_token_id).long()
 
         # ---- pixel_values ----
-        # Qwen2-VL: pixel_values shape is variable (depends on dynamic resolution).
-        # If all images produced the same tensor shape, stack into (B, ...);
-        # otherwise cat along dim=0 to (total_patches, ...) — Qwen2-VL uses
-        # image_grid_thw to recover per-image boundaries in that case.
+        # Qwen2-VL processor returns pixel_values as (total_patches, C*t*ph*pw) —
+        # there is NO batch dimension.  Always concatenate so the model receives a
+        # single flat (total_patches_all_images, D) tensor; image_grid_thw tells
+        # the visual encoder where each image's patches begin and end.
         pixel_values = [s["pixel_values"] for s in samples]
         if pixel_values[0] is not None:
-            shapes = [pv.shape for pv in pixel_values]
-            if len(set(shapes)) == 1:
-                batch["pixel_values"] = torch.stack(pixel_values, dim=0)
-            else:
-                batch["pixel_values"] = torch.cat(pixel_values, dim=0)
+            batch["pixel_values"] = torch.cat(pixel_values, dim=0)
 
         # ---- image_grid_thw ----
         grid_thw = [s.get("image_grid_thw") for s in samples]

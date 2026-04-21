@@ -84,7 +84,12 @@ class TargetModel(nn.Module):
         vis = self.model.model.visual
         hidden = vis.patch_embed(pixel_values)
 
+        # Replicate the visual encoder's own forward logic exactly:
+        # rot_pos_emb returns raw frequencies; blocks expect (cos, sin) tuple.
         rotary_pos_emb = vis.rot_pos_emb(image_grid_thw)
+        emb = torch.cat((rotary_pos_emb, rotary_pos_emb), dim=-1)
+        position_embeddings = (emb.cos(), emb.sin())
+
         cu_seqlens = torch.repeat_interleave(
             image_grid_thw[:, 1] * image_grid_thw[:, 2],
             image_grid_thw[:, 0],
@@ -92,7 +97,7 @@ class TargetModel(nn.Module):
         cu_seqlens = torch.nn.functional.pad(cu_seqlens, (1, 0), value=0)
 
         for blk in vis.blocks:
-            hidden = blk(hidden, cu_seqlens=cu_seqlens, rotary_pos_emb=rotary_pos_emb)
+            hidden = blk(hidden, cu_seqlens=cu_seqlens, position_embeddings=position_embeddings)
 
         return hidden  # (total_patches, vit_hidden_size)
 
