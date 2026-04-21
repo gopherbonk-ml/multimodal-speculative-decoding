@@ -32,7 +32,6 @@ checkpoints/
 hub/
 
 # Data
-/data/
 *.jsonl
 !configs/data_sources.jsonl
 
